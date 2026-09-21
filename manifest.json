@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.ilyazar.capture-control",
+  "name": "Capture Control",
+  "version": "0.1.0",
+  "author": "ilyaZar",
+  "license": "MIT",
+  "description": "Screen recording and a compact Show Me The Key control.",
+  "kinds": ["service", "bar-widget"],
+  "entryPoints": {"service": "Service.qml", "barWidget": "BarWidget.qml"},
+  "barWidget": {
+    "displayName": "Capture Control",
+    "category": "Status",
+    "allowMultiple": false,
+    "defaultSection": "center"
+  }
+}
