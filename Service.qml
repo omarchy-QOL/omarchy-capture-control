@@ -12,8 +12,7 @@ Item {
   property real backgroundOpacity: 0.3
   property string textColor: "#ffffff"
   property string error: ""
-  property string startShortcut: "Unbound"
-  property string stopShortcut: "Unbound"
+  property string toggleShortcut: "Unbound"
   property var pendingAction: null
   readonly property bool busy: action.running
   readonly property string helper: decodeURIComponent(Qt.resolvedUrl("control.py").toString().replace(/^file:\/\//, ""))
@@ -119,10 +118,9 @@ Item {
       onStreamFinished: {
         try {
           var entries = JSON.parse(text)
-          root.startShortcut = root.shortcut(entries, "Start key capture")
-          root.stopShortcut = root.shortcut(entries, "Stop key capture")
+          root.toggleShortcut = root.shortcut(entries, "Toggle key capture")
         } catch (error) {
-          root.startShortcut = root.stopShortcut = "Unbound"
+          root.toggleShortcut = "Unbound"
         }
       }
     }

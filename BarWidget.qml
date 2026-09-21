@@ -40,7 +40,8 @@ Panel {
     text: "󰻂"
     useActiveColor: false
     active: root.capture && root.capture.recording
-    tooltipText: active ? "Stop recording" : "Screen Recording"
+    tooltipText: (active ? "Left-click: stop recording" : "Left-click: screen recording")
+      + "\nRight-click: key capture settings"
     onPressed: function(mouseButton) {
       if (mouseButton === Qt.RightButton) root.toggle()
       else if (mouseButton === Qt.LeftButton && root.bar) {
@@ -69,6 +70,28 @@ Panel {
       spacing: Style.space(10)
       Keys.onEscapePressed: root.close()
 
+      Column {
+        width: parent.width
+        spacing: Style.space(4)
+
+        Text {
+          text: "Key capture settings"
+          color: Color.popups.text
+          font.family: Style.font.family
+          font.pixelSize: Style.font.subtitle
+          font.bold: true
+        }
+
+        Text {
+          width: parent.width
+          text: "Show pressed keys in screen recordings."
+          color: Color.popups.text
+          font.family: Style.font.family
+          font.pixelSize: Style.font.caption
+          wrapMode: Text.WordWrap
+        }
+      }
+
       Item {
         width: parent.width
         implicitHeight: Math.max(gear.implicitHeight, shortcuts.implicitHeight, captureToggle.implicitHeight)
@@ -78,7 +101,8 @@ Panel {
           anchors.left: parent.left
           anchors.verticalCenter: parent.verticalCenter
           iconText: "󰒓"
-          tooltipText: "Edit capture settings and keybindings"
+          iconSize: Style.font.icon * 1.5
+          tooltipText: "Edit key capture settings and keybindings"
           focusable: true
           onClicked: {
             root.close()
@@ -93,8 +117,7 @@ Panel {
           anchors.right: captureState.left
           anchors.rightMargin: Style.space(10)
           anchors.verticalCenter: parent.verticalCenter
-          text: root.capture ? "Start  " + root.capture.startShortcut
-            + "\nStop   " + root.capture.stopShortcut : ""
+          text: root.capture ? "Start/Stop  " + root.capture.toggleShortcut : ""
           color: Color.popups.text
           font.family: Style.font.family
           font.pixelSize: Style.font.body
@@ -144,6 +167,7 @@ Panel {
 
         Text {
           id: opacityTitle
+          width: Math.max(implicitWidth, Style.space(36))
           text: "Background"
           color: Color.popups.text
           font.family: Style.font.family
@@ -169,8 +193,9 @@ Panel {
 
         Text {
           id: opacityLabel
-          width: Style.space(36)
+          width: opacityTitle.width
           text: Math.round(opacitySlider.liveValue) + "%"
+          horizontalAlignment: Text.AlignRight
           color: Color.popups.text
           font.family: Style.font.family
           font.pixelSize: Style.font.caption

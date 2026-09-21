@@ -11,12 +11,14 @@ screen and displays key presses; it does not edit videos.
 - Right-click: key capture switch, background opacity, and text colour.
 - Gear: open capture settings and Hyprland bindings in two Neovim buffers.
 - White, light teal, red, yellow, purple, and a custom `#rrggbb` text colour.
-- The displayed start/stop shortcuts come from the active Hyprland bindings.
+- The displayed start/stop shortcut comes from the active Hyprland bindings.
 
 ## Install
 
 Requires Omarchy Quattro, Quickshell 0.3.1, Qt 6, Python 3.12+, Neovim,
-Show Me The Key 1.21.0, and GTK 4.10 or newer. On Arch:
+Show Me The Key 1.21.0, and GTK 4.10 or newer. Omarchy supplies the screen
+recorder; Show Me The Key is an additional dependency for displaying keys.
+On Arch:
 
 ```bash
 omarchy pkg add showmethekey meson ninja gcc glib2-devel
@@ -44,14 +46,14 @@ Remove `ScreenRecording` from the `omarchy.indicators` entry's `items` array
 in `~/.config/omarchy/shell.json` to avoid a duplicate icon. Preserve the other
 indicators. On hosts without Voxtype, place this widget before `omarchy.clock`.
 
-Add unused shortcuts in `~/.config/hypr/bindings.lua`:
+Add this shortcut in `~/.config/hypr/bindings.lua` if it is unused:
 
 ```lua
-o.bind("SUPER + F8", "Start key capture", "omarchy shell keycapture start")
-o.bind("SUPER + SHIFT + F8", "Stop key capture", "omarchy shell keycapture stop")
+o.bind("SUPER + F8", "Toggle key capture", "omarchy shell keycapture toggle")
 ```
 
-Keep those descriptions when changing the keys so the popup can find them.
+Keep the description when changing the key so the popup can find it. Replace
+the old separate start/stop bindings if upgrading from version 0.1.0.
 Add this window rule to the user Hyprland configuration:
 
 ```lua
@@ -127,5 +129,5 @@ omarchy plugin disable io.github.ilyazar.capture-control
 omarchy plugin remove io.github.ilyazar.capture-control
 ```
 
-Remove its two bindings and restore `ScreenRecording` in the indicators list.
+Remove its binding and restore `ScreenRecording` in the indicators list.
 User settings and the private renderer remain available for reinstalling.
