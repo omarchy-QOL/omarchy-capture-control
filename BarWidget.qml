@@ -56,8 +56,9 @@ Panel {
     id: captureTooltip
     anchorItem: button
     bar: root.bar
-    text: (button.active ? "Left-click: stop recording" : "Left-click: screen recording")
-      + "\nRight-click: key capture settings"
+    text: "Left-click:\nRight-click:"
+    rightText: (button.active ? "stop recording" : "screen recording")
+      + "\nkey capture settings"
     hovered: button.tooltipHovered && !root.opened
       && !(root.bar && root.bar.activePopout)
   }

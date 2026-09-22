@@ -9,6 +9,7 @@ PopupWindow {
   required property Item anchorItem
   required property var bar
   property string text: ""
+  property string rightText: ""
   property bool hovered: false
   property bool ready: false
   property bool suppressed: false
@@ -23,8 +24,8 @@ PopupWindow {
 
   visible: !!anchorWindow && hovered && ready && !suppressed
   color: "transparent"
-  implicitWidth: label.implicitWidth + 20
-  implicitHeight: label.implicitHeight + 14
+  implicitWidth: content.implicitWidth + 20
+  implicitHeight: content.implicitHeight + 14
 
   Timer {
     interval: 400
@@ -55,9 +56,9 @@ PopupWindow {
         x = -root.implicitWidth - 6
         y = target.height / 2 - root.implicitHeight / 2
       }
-      var point = root.anchorWindow.contentItem.mapFromItem(target, x, y)
-      popupAnchor.rect.x = Math.round(point.x)
-      popupAnchor.rect.y = Math.round(point.y)
+      var point = root.anchorWindow.itemPosition(target)
+      popupAnchor.rect.x = Math.round(point.x + x)
+      popupAnchor.rect.y = Math.round(point.y + y)
     }
   }
 
@@ -67,15 +68,29 @@ PopupWindow {
     borderSpec: Border.surfaceSpec("tooltip", "border", Color.tooltip.border, 1)
     radius: Style.cornerRadius
 
-    Text {
-      id: label
+    Row {
+      id: content
       anchors.centerIn: parent
-      textFormat: Text.PlainText
-      text: root.text
-      color: Color.tooltip.text
-      font.family: root.bar ? root.bar.fontFamily : Style.font.family
-      font.pixelSize: Style.font.body
-      horizontalAlignment: Text.AlignLeft
+      spacing: Style.space(16)
+
+      Text {
+        id: label
+        textFormat: Text.PlainText
+        text: root.text
+        color: Color.tooltip.text
+        font.family: root.bar ? root.bar.fontFamily : Style.font.family
+        font.pixelSize: Style.font.body
+        horizontalAlignment: Text.AlignLeft
+      }
+
+      Text {
+        visible: root.rightText !== ""
+        textFormat: Text.PlainText
+        text: root.rightText
+        color: Color.tooltip.text
+        font: label.font
+        horizontalAlignment: Text.AlignRight
+      }
     }
   }
 }
