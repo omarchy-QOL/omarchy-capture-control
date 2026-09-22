@@ -78,6 +78,12 @@ Panel {
       width: parent.width
       spacing: Style.space(10)
       Keys.onEscapePressed: root.close()
+      Keys.onPressed: function(event) {
+        if (event.key === Qt.Key_Q && event.modifiers === Qt.NoModifier && !customColorField.activeFocus) {
+          root.close()
+          event.accepted = true
+        }
+      }
 
       Column {
         width: parent.width
