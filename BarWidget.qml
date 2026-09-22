@@ -107,7 +107,7 @@ Panel {
           anchors.top: heading.bottom
           anchors.topMargin: Style.space(4)
           width: bindingsLabel.x - Style.space(10)
-          text: "Drag to move key overlay"
+          text: "Use mouse to move overlay"
           color: Color.popups.text
           font.family: Style.font.family
           font.pixelSize: Style.font.caption
