@@ -67,6 +67,11 @@ def text_color(config):
     return value.lower()
 
 
+def only_omarchy_bindings(config):
+    return (config.getboolean("one/alynx/showmethekey", "hide-visible", fallback=False)
+            and config.get("one/alynx/showmethekey", "mode", fallback="'composed'") != "'raw'")
+
+
 def start():
     if running():
         return
@@ -97,12 +102,24 @@ def main():
         recording = subprocess.run(
             ["pgrep", "--quiet", "-f", "^gpu-screen-recorder"],
         ).returncode == 0
+        config = settings()
         print(json.dumps({"recording": recording, "running": running(),
-                          "opacity": opacity(settings()), "textColor": text_color(settings())}))
+                          "opacity": opacity(config), "textColor": text_color(config),
+                          "onlyOmarchyBindings": only_omarchy_bindings(config)}))
     elif action == "start":
         start()
     elif action == "stop":
         stop()
+    elif action == "bindings-only":
+        value = sys.argv[2]
+        if value not in ("true", "false"):
+            raise ValueError("Bindings filter must be true or false")
+        initialize()
+        env = {**os.environ, "GSETTINGS_BACKEND": "keyfile", "XDG_CONFIG_HOME": str(APP_HOME)}
+        command = ["gsettings", "set", "one.alynx.showmethekey"]
+        if value == "true" and settings().get("one/alynx/showmethekey", "mode", fallback="'composed'") == "'raw'":
+            subprocess.run(command + ["mode", "composed"], env=env, check=True)
+        subprocess.run(command + ["hide-visible", value], env=env, check=True)
     elif action in ("opacity", "color"):
         initialize()
         config = settings()

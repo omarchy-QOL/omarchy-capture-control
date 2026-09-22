@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.ilyazar.capture-control",
   "name": "Capture Control",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "ilyaZar",
   "license": "MIT",
   "description": "Screen recording and a compact Show Me The Key control.",
