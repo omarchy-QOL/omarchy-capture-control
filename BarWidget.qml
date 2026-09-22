@@ -103,41 +103,12 @@ Panel {
 
       Item {
         width: parent.width
-        implicitHeight: Math.max(gear.implicitHeight, shortcuts.implicitHeight, captureToggle.implicitHeight)
-
-        Button {
-          id: gear
-          anchors.left: parent.left
-          anchors.verticalCenter: parent.verticalCenter
-          iconText: "󰒓"
-          iconSize: Style.font.icon * 1.5
-          tooltipText: "Edit key capture settings and keybindings"
-          focusable: true
-          onClicked: {
-            root.close()
-            if (root.capture) root.capture.edit()
-          }
-        }
-
-        Text {
-          id: shortcuts
-          anchors.left: gear.right
-          anchors.leftMargin: Style.space(10)
-          anchors.right: captureState.left
-          anchors.rightMargin: Style.space(10)
-          anchors.verticalCenter: parent.verticalCenter
-          text: root.capture ? "Start/Stop  " + root.capture.toggleShortcut : ""
-          color: Color.popups.text
-          font.family: Style.font.family
-          font.pixelSize: Style.font.body
-          elide: Text.ElideRight
-        }
+        implicitHeight: Math.max(captureToggle.implicitHeight, bindingsOnlyToggle.implicitHeight)
 
         Text {
           id: captureState
-          anchors.right: captureToggle.left
-          anchors.rightMargin: Style.space(6)
-          anchors.verticalCenter: captureToggle.verticalCenter
+          anchors.left: parent.left
+          anchors.verticalCenter: parent.verticalCenter
           text: captureToggle.checked ? "ON" : "OFF"
           font: shortcuts.font
           color: captureToggle.checked
@@ -148,7 +119,8 @@ Panel {
         ToggleSwitch {
           id: captureToggle
           objectName: "captureToggle"
-          anchors.right: parent.right
+          anchors.left: captureState.right
+          anchors.leftMargin: Style.space(6)
           anchors.verticalCenter: parent.verticalCenter
           trackHeight: Math.round(shortcuts.font.pixelSize * 1.2)
           cursorPad: Style.space(3)
@@ -168,27 +140,79 @@ Panel {
             fontFamily: Style.font.family
           }
         }
+
+        Text {
+          id: bindingsLabel
+          anchors.left: captureToggle.right
+          anchors.leftMargin: Style.space(10)
+          anchors.right: bindingsOnlyToggle.left
+          anchors.rightMargin: Style.space(6)
+          anchors.verticalCenter: parent.verticalCenter
+          text: bindingsOnlyToggle.checked ? "Only Omarchy" : "All bindings"
+          color: bindingsOnlyToggle.checked
+            ? root.systemColors["palette.green"] || root.systemColors["palette.color2"] || Color.accent
+            : root.systemColors["palette.red"] || root.systemColors["palette.color1"] || Color.urgent
+          font: shortcuts.font
+          horizontalAlignment: Text.AlignRight
+          elide: Text.ElideRight
+        }
+
+        ToggleSwitch {
+          id: bindingsOnlyToggle
+          objectName: "bindingsOnlyToggle"
+          anchors.right: parent.right
+          anchors.verticalCenter: parent.verticalCenter
+          trackHeight: captureToggle.trackHeight
+          cursorPad: captureToggle.cursorPad
+          activeFocusOnTab: true
+          hasCursor: activeFocus
+          foreground: Color.popups.text
+          checked: root.capture && root.capture.onlyOmarchyBindings
+          busy: !root.capture || root.capture.busy
+          Accessible.name: "Only Omarchy bindings"
+          onToggled: root.capture.run("bindings-only", !checked)
+          Keys.onReturnPressed: if (!busy) toggled()
+          Keys.onEnterPressed: if (!busy) toggled()
+          Keys.onSpacePressed: if (!busy) toggled()
+
+          CaptureTooltip {
+            anchorItem: bindingsOnlyToggle
+            bar: root.bar
+            hovered: bindingsOnlyToggle.containsMouse && root.opened
+            text: "Hiding ordinary typing"
+          }
+        }
       }
 
-      Toggle {
-        id: bindingsOnlyToggle
-        objectName: "bindingsOnlyToggle"
+      Item {
         width: parent.width
-        implicitHeight: Style.space(36)
-        label: "Only Omarchy bindings"
-        titleSize: Style.font.body
-        foreground: Color.popups.text
-        checked: root.capture && root.capture.onlyOmarchyBindings
-        enabled: root.capture && !root.capture.busy
-        Accessible.name: label
-        onClicked: root.capture.run("bindings-only", !checked)
-        onHovered: function(hovered) { bindingsTooltip.hovered = hovered }
+        implicitHeight: Math.max(gear.implicitHeight, shortcuts.implicitHeight)
 
-        CaptureTooltip {
-          id: bindingsTooltip
-          anchorItem: bindingsOnlyToggle
-          bar: root.bar
-          text: "Hiding ordinary typing"
+        Button {
+          id: gear
+          anchors.left: parent.left
+          anchors.verticalCenter: parent.verticalCenter
+          iconText: "󰒓"
+          iconSize: Style.font.icon * 1.5
+          tooltipText: "Edit key capture settings and keybindings"
+          focusable: true
+          onClicked: {
+            root.close()
+            if (root.capture) root.capture.edit()
+          }
+        }
+
+        Text {
+          id: shortcuts
+          anchors.left: gear.right
+          anchors.leftMargin: Style.space(10)
+          anchors.right: parent.right
+          anchors.verticalCenter: parent.verticalCenter
+          text: root.capture ? "Start/Stop  " + root.capture.toggleShortcut : ""
+          color: Color.popups.text
+          font.family: Style.font.family
+          font.pixelSize: Style.font.body
+          elide: Text.ElideRight
         }
       }
 

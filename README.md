@@ -28,7 +28,7 @@ your system package stays unchanged.
 - **Right-click** to toggle the key display, set background opacity, and choose
   a text colour. Five presets and a custom hex colour are available.
 - **Gear** opens the key display settings and your shortcuts in Neovim.
-- **Only Omarchy bindings** hides ordinary typing using the native filter.
+- **Only Omarchy** hides ordinary typing using the native filter.
   Super/Ctrl/Alt combinations remain visible, including application shortcuts.
   Bare Print, function keys, and media keys are hidden; mouse clicks are unchanged.
 - **Super+F8**, if [configured](docs/setup.md#keyboard-shortcut), toggles keys.
