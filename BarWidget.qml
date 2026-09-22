@@ -40,9 +40,8 @@ Panel {
     text: "󰻂"
     useActiveColor: false
     active: root.capture && root.capture.recording
-    tooltipText: (active ? "Left-click: stop recording" : "Left-click: screen recording")
-      + "\nRight-click: key capture settings"
     onPressed: function(mouseButton) {
+      captureTooltip.dismiss()
       if (mouseButton === Qt.RightButton) root.toggle()
       else if (mouseButton === Qt.LeftButton && root.bar) {
         root.close()
@@ -51,6 +50,16 @@ Panel {
           : "omarchy-menu toggle trigger.capture.screenrecord")
       }
     }
+  }
+
+  CaptureTooltip {
+    id: captureTooltip
+    anchorItem: button
+    bar: root.bar
+    text: (button.active ? "Left-click: stop recording" : "Left-click: screen recording")
+      + "\nRight-click: key capture settings"
+    hovered: button.tooltipHovered && !root.opened
+      && !(root.bar && root.bar.activePopout)
   }
 
   KeyboardPanel {
@@ -193,9 +202,7 @@ Panel {
 
         Text {
           id: opacityLabel
-          width: opacityTitle.width
           text: Math.round(opacitySlider.liveValue) + "%"
-          horizontalAlignment: Text.AlignRight
           color: Color.popups.text
           font.family: Style.font.family
           font.pixelSize: Style.font.caption
