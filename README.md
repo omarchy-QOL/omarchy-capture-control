@@ -11,16 +11,21 @@ Wayland. Use Omarchy's recorder and turn the key display on when needed.
 On Omarchy Quattro:
 
 ```bash
-omarchy pkg add showmethekey meson ninja gcc glib2-devel
-omarchy plugin add https://github.com/omarchy-QOL/omarchy-capture-control.git
-capture_plugin="$HOME/.config/omarchy/plugins/io.github.ilyazar.capture-control"
-python3 "$capture_plugin/build-renderer.py"
-omarchy plugin enable io.github.ilyazar.capture-control --before omarchy.clock
+omarchy plugin add https://github.com/omarchy-QOL/omarchy-capture-control.git --enable
 ```
 
-Then finish the [one-time overlay setup](docs/setup.md#overlay-placement).
-The build adds text colour support to a private copy of Show Me The Key;
-your system package stays unchanged.
+Right-click the bar icon to finish setup. If packages are missing, the panel
+shows the exact `omarchy pkg add` command and asks **Yes / No**. Yes opens a
+terminal for installation and any password prompt, then builds the private
+renderer automatically. Once it finishes, right-click again for the settings.
+No leaves recording available and key capture unconfigured.
+
+On a standard Omarchy Quattro installation, the extra packages are
+`showmethekey`, `meson`, and `glib2-devel`. Meson brings Ninja; Omarchy already
+supplies Python and the base development tools. Only missing packages are
+requested. The private renderer adds text colour support and clean shutdown;
+your system's Show Me The Key stays unchanged. No Python command or window
+rule needs to be copied.
 
 ## Use
 
@@ -46,11 +51,10 @@ Changing opacity or colour briefly restarts the overlay and resets its position.
 
 ```bash
 systemctl --user stop showmethekey-video.service
-omarchy plugin disable io.github.ilyazar.capture-control
 omarchy plugin remove io.github.ilyazar.capture-control
 ```
 
-Remove the window rule and any shortcut you added. If you hid the stock
+Remove any shortcut you added. If you hid the stock
 recording indicator, restore it. Your settings remain available for
 reinstalling.
 

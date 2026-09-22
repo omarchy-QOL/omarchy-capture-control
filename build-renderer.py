@@ -27,9 +27,13 @@ def main():
     cache.mkdir(parents=True, exist_ok=True)
     archive = cache / "showmethekey.tar.gz"
     if not archive.exists():
+        download = archive.with_suffix(".download")
         urllib.request.urlretrieve(
-            "https://codeload.github.com/AlynxZhou/showmethekey/tar.gz/" + COMMIT, archive,
+            "https://codeload.github.com/AlynxZhou/showmethekey/tar.gz/" + COMMIT, download,
         )
+        if hashlib.sha256(download.read_bytes()).hexdigest() != SHA256:
+            raise SystemExit("Show Me The Key source checksum mismatch")
+        download.replace(archive)
     if hashlib.sha256(archive.read_bytes()).hexdigest() != SHA256:
         raise SystemExit("Show Me The Key source checksum mismatch")
     with tarfile.open(archive) as package:
