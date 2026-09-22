@@ -4,24 +4,18 @@ Start with the [installation commands](../README.md#install).
 
 Requires Omarchy Quattro, Quickshell 0.3.1, Qt 6, Python 3.12+, Neovim,
 Show Me The Key 1.21.0, and GTK 4.10 or newer. Omarchy supplies the recorder.
-Install the dependencies and build the renderer before starting key capture.
+Right-click the icon to install missing dependencies and prepare the renderer.
+Installing packages opens a terminal; declining leaves screen recording usable.
+Build failures can be retried from the panel. Source downloads require internet
+access the first time.
 
 ## Overlay placement
 
-Add this window rule to your Hyprland Lua configuration to keep the key display
-floating, visible across workspaces, and near the bottom of the screen:
-
-```lua
-o.window({ class = "^one\\.alynx\\.showmethekey$",
-  title = "^Floating Window - Show Me The Key$" }, {
-  float = true, pin = true, no_initial_focus = true,
-  move = { "(monitor_w-window_w)/2", "monitor_h-window_h-40" },
-  no_blur = true, no_shadow = true, border_size = 0, no_dim = true,
-  tag = "-default-opacity", opacity = "1 1",
-})
-```
-
-Reload Hyprland and check `hyprctl configerrors` after the reload completes.
+The plugin applies its named Hyprland Lua window rule when capture starts and
+again after a Hyprland configuration reload while capture is running. The
+rule keeps the overlay floating, pinned across workspaces, and near the bottom
+of the screen. It does not edit your configuration files; the runtime rule
+expires on configuration reload and is reapplied when capture next starts.
 There is no autostart: capture begins only on request.
 
 ## Keyboard shortcut
@@ -36,16 +30,21 @@ Keep the description when changing the key so the panel can find your shortcut.
 
 ## Bar placement
 
-To put the icon before Voxtype instead of the clock:
+Placement is optional. For example, move the icon before the clock:
 
 ```bash
-omarchy plugin enable io.github.ilyazar.capture-control \
-  --before io.github.ilyazar.voxtype-control
+omarchy plugin enable io.github.ilyazar.capture-control --before omarchy.clock
 ```
 
-Remove `ScreenRecording` from the `omarchy.indicators` entry's `items` array
-in `~/.config/omarchy/shell.json` to avoid a duplicate icon. Preserve the other
-indicators. On hosts without Voxtype, place this widget before `omarchy.clock`.
+`--before` only controls placement; it does not replace the stock recording
+indicator. Capture Control leaves the stock indicators unchanged, including on
+removal. The stock `ScreenRecording` component is part of `omarchy.indicators`,
+not a separately replaceable plugin like `omarchy.keyboard-layout`.
+
+To hide a duplicate recording indicator, remove `ScreenRecording` from the
+`omarchy.indicators` entry's `items` array in
+`~/.config/omarchy/shell.json`, preserving the other indicators. Restore that
+entry yourself if you later remove Capture Control.
 
 ## Settings
 

@@ -14,6 +14,7 @@ Panel {
   onOpenedChanged: if (opened && capture) {
     capture.refresh()
     capture.refreshShortcuts()
+    capture.checkSetup()
   }
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
@@ -70,7 +71,7 @@ Panel {
     owner: root
     bar: root.bar
     open: root.opened
-    focusTarget: captureToggle
+    focusTarget: setupPane.visible ? setupPane.focusTarget : captureToggle
     contentWidth: panel.fittedContentWidth(Style.space(340))
     contentHeight: panel.fittedContentHeight(content.implicitHeight)
 
@@ -86,227 +87,241 @@ Panel {
         }
       }
 
-      Item {
+      SetupPane {
+        id: setupPane
         width: parent.width
-        implicitHeight: heading.implicitHeight + Style.space(4) + subtitle.implicitHeight
-
-        Text {
-          id: heading
-          anchors.left: parent.left
-          width: captureState.x - Style.space(10)
-          text: "Key capture settings"
-          color: Color.popups.text
-          font.family: Style.font.family
-          font.pixelSize: Style.font.subtitle
-          font.bold: true
-        }
-
-        Text {
-          id: subtitle
-          anchors.left: parent.left
-          anchors.top: heading.bottom
-          anchors.topMargin: Style.space(4)
-          width: bindingsLabel.x - Style.space(10)
-          text: "Use mouse to move overlay"
-          color: Color.popups.text
-          font.family: Style.font.family
-          font.pixelSize: Style.font.caption
-          wrapMode: Text.WordWrap
-        }
-        Text {
-          id: captureState
-          anchors.right: captureToggle.left
-          anchors.rightMargin: Style.space(6)
-          anchors.verticalCenter: heading.verticalCenter
-          text: captureToggle.checked ? "ON" : "OFF"
-          font.family: Style.font.family
-          font.pixelSize: Style.font.caption
-          color: captureToggle.checked
-            ? root.systemColors["palette.green"] || root.systemColors["palette.color2"] || Color.accent
-            : root.systemColors["palette.red"] || root.systemColors["palette.color1"] || Color.urgent
-        }
-
-        ToggleSwitch {
-          id: captureToggle
-          objectName: "captureToggle"
-          anchors.right: parent.right
-          anchors.verticalCenter: heading.verticalCenter
-          trackHeight: Style.space(11)
-          cursorPad: Style.space(2)
-          activeFocusOnTab: true
-          checked: root.capture && root.capture.capturing
-          busy: !root.capture || root.capture.busy
-          Accessible.name: "Key capture"
-          onToggled: root.capture.run(checked ? "stop" : "start")
-          Keys.onReturnPressed: if (!busy) toggled()
-          Keys.onEnterPressed: if (!busy) toggled()
-          Keys.onSpacePressed: if (!busy) toggled()
-
-          PanelToolTip {
-            visible: captureToggle.containsMouse
-            text: captureToggle.checked ? "Stop key capture" : "Start key capture"
-            fontFamily: Style.font.family
-          }
-        }
-
-        Text {
-          id: bindingsLabel
-          anchors.right: bindingsOnlyToggle.left
-          anchors.rightMargin: Style.space(6)
-          anchors.verticalCenter: subtitle.verticalCenter
-          text: bindingsOnlyToggle.checked ? "Only Omarchy" : "All bindings"
-          color: Color.popups.text
-          font.family: Style.font.family
-          font.pixelSize: Style.font.caption
-        }
-
-        ToggleSwitch {
-          id: bindingsOnlyToggle
-          objectName: "bindingsOnlyToggle"
-          anchors.right: parent.right
-          anchors.verticalCenter: subtitle.verticalCenter
-          trackHeight: captureToggle.trackHeight
-          cursorPad: captureToggle.cursorPad
-          activeFocusOnTab: true
-          hasCursor: activeFocus
-          foreground: Color.popups.text
-          checked: root.capture && root.capture.onlyOmarchyBindings
-          busy: !root.capture || root.capture.busy
-          Accessible.name: "Only Omarchy bindings"
-          onToggled: root.capture.run("bindings-only", !checked)
-          Keys.onReturnPressed: if (!busy) toggled()
-          Keys.onEnterPressed: if (!busy) toggled()
-          Keys.onSpacePressed: if (!busy) toggled()
-
-          CaptureTooltip {
-            anchorItem: bindingsOnlyToggle
-            bar: root.bar
-            hovered: bindingsOnlyToggle.containsMouse && root.opened
-            text: "Hiding ordinary typing"
-          }
-        }
+        capture: root.capture
+        visible: !root.capture || !root.capture.setupReady
+        onDismissed: root.close()
       }
 
-      Item {
-        width: parent.width
-        implicitHeight: Math.max(gear.implicitHeight, shortcuts.implicitHeight)
-
-        Button {
-          id: gear
-          anchors.right: parent.right
-          anchors.verticalCenter: parent.verticalCenter
-          iconText: "󰒓"
-          iconSize: Style.font.icon * 1.5
-          tooltipText: "Edit key capture settings and keybindings"
-          focusable: true
-          onClicked: {
-            root.close()
-            if (root.capture) root.capture.edit()
-          }
-        }
-
-        Text {
-          id: shortcuts
-          anchors.left: parent.left
-          anchors.right: gear.left
-          anchors.rightMargin: Style.space(10)
-          anchors.verticalCenter: parent.verticalCenter
-          text: root.capture ? "Start / Stop:  " + root.capture.toggleShortcut : ""
-          color: Color.popups.text
-          font.family: Style.font.family
-          font.pixelSize: Style.font.body
-          elide: Text.ElideRight
-        }
-      }
-
-      Row {
+      Column {
         width: parent.width
         spacing: Style.space(10)
+        visible: root.capture && root.capture.setupReady
+        Item {
+          width: parent.width
+          implicitHeight: heading.implicitHeight + Style.space(4) + subtitle.implicitHeight
 
-        Text {
-          id: opacityTitle
-          width: Math.max(implicitWidth, Style.space(36))
-          text: "Overlay transparency"
-          color: Color.popups.text
-          font.family: Style.font.family
-          font.pixelSize: Style.font.body
-          anchors.verticalCenter: parent.verticalCenter
+          Text {
+            id: heading
+            anchors.left: parent.left
+            width: captureState.x - Style.space(10)
+            text: "Key capture settings"
+            color: Color.popups.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.subtitle
+            font.bold: true
+          }
+
+          Text {
+            id: subtitle
+            anchors.left: parent.left
+            anchors.top: heading.bottom
+            anchors.topMargin: Style.space(4)
+            width: bindingsLabel.x - Style.space(10)
+            text: "Use mouse to move overlay"
+            color: Color.popups.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.caption
+            wrapMode: Text.WordWrap
+          }
+          Text {
+            id: captureState
+            anchors.right: captureToggle.left
+            anchors.rightMargin: Style.space(6)
+            anchors.verticalCenter: heading.verticalCenter
+            text: captureToggle.checked ? "ON" : "OFF"
+            font.family: Style.font.family
+            font.pixelSize: Style.font.caption
+            color: captureToggle.checked
+              ? root.systemColors["palette.green"] || root.systemColors["palette.color2"] || Color.accent
+              : root.systemColors["palette.red"] || root.systemColors["palette.color1"] || Color.urgent
+          }
+
+          ToggleSwitch {
+            id: captureToggle
+            objectName: "captureToggle"
+            anchors.right: parent.right
+            anchors.verticalCenter: heading.verticalCenter
+            trackHeight: Style.space(11)
+            cursorPad: Style.space(2)
+            activeFocusOnTab: true
+            checked: root.capture && root.capture.capturing
+            busy: !root.capture || root.capture.busy
+            Accessible.name: "Key capture"
+            onToggled: root.capture.run(checked ? "stop" : "start")
+            Keys.onReturnPressed: if (!busy) toggled()
+            Keys.onEnterPressed: if (!busy) toggled()
+            Keys.onSpacePressed: if (!busy) toggled()
+
+            PanelToolTip {
+              visible: captureToggle.containsMouse
+              text: captureToggle.checked ? "Stop key capture" : "Start key capture"
+              fontFamily: Style.font.family
+            }
+          }
+
+          Text {
+            id: bindingsLabel
+            anchors.right: bindingsOnlyToggle.left
+            anchors.rightMargin: Style.space(6)
+            anchors.verticalCenter: subtitle.verticalCenter
+            text: bindingsOnlyToggle.checked ? "Only Omarchy" : "All bindings"
+            color: Color.popups.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.caption
+          }
+
+          ToggleSwitch {
+            id: bindingsOnlyToggle
+            objectName: "bindingsOnlyToggle"
+            anchors.right: parent.right
+            anchors.verticalCenter: subtitle.verticalCenter
+            trackHeight: captureToggle.trackHeight
+            cursorPad: captureToggle.cursorPad
+            activeFocusOnTab: true
+            hasCursor: activeFocus
+            foreground: Color.popups.text
+            checked: root.capture && root.capture.onlyOmarchyBindings
+            busy: !root.capture || root.capture.busy
+            Accessible.name: "Only Omarchy bindings"
+            onToggled: root.capture.run("bindings-only", !checked)
+            Keys.onReturnPressed: if (!busy) toggled()
+            Keys.onEnterPressed: if (!busy) toggled()
+            Keys.onSpacePressed: if (!busy) toggled()
+
+            CaptureTooltip {
+              anchorItem: bindingsOnlyToggle
+              bar: root.bar
+              hovered: bindingsOnlyToggle.containsMouse && root.opened
+              text: "Hiding ordinary typing"
+            }
+          }
         }
 
-        PanelSlider {
-          id: opacitySlider
-          width: parent.width - opacityTitle.width - opacityLabel.width - parent.spacing * 2
-          bar: root.bar
-          minimum: 0
-          maximum: 100
-          step: 5
-          integer: true
-          activeFocusOnTab: true
-          Keys.onLeftPressed: root.capture.run("opacity", Math.max(0, value - 5) / 100)
-          Keys.onRightPressed: root.capture.run("opacity", Math.min(100, value + 5) / 100)
-          value: root.capture ? Math.round(root.capture.backgroundOpacity * 100) : 30
+        Item {
+          width: parent.width
+          implicitHeight: Math.max(gear.implicitHeight, shortcuts.implicitHeight)
+
+          Button {
+            id: gear
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            iconText: "󰒓"
+            iconSize: Style.font.icon * 1.5
+            tooltipText: "Edit key capture settings and keybindings"
+            focusable: true
+            onClicked: {
+              root.close()
+              if (root.capture) root.capture.edit()
+            }
+          }
+
+          Text {
+            id: shortcuts
+            anchors.left: parent.left
+            anchors.right: gear.left
+            anchors.rightMargin: Style.space(10)
+            anchors.verticalCenter: parent.verticalCenter
+            text: root.capture ? "Start / Stop:  " + root.capture.toggleShortcut : ""
+            color: Color.popups.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.body
+            elide: Text.ElideRight
+          }
+        }
+
+        Row {
+          width: parent.width
+          spacing: Style.space(10)
+
+          Text {
+            id: opacityTitle
+            width: Math.max(implicitWidth, Style.space(36))
+            text: "Overlay transparency"
+            color: Color.popups.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.body
+            anchors.verticalCenter: parent.verticalCenter
+          }
+
+          PanelSlider {
+            id: opacitySlider
+            width: parent.width - opacityTitle.width - opacityLabel.width - parent.spacing * 2
+            bar: root.bar
+            minimum: 0
+            maximum: 100
+            step: 5
+            integer: true
+            activeFocusOnTab: true
+            Keys.onLeftPressed: root.capture.run("opacity", Math.max(0, value - 5) / 100)
+            Keys.onRightPressed: root.capture.run("opacity", Math.min(100, value + 5) / 100)
+            value: root.capture ? Math.round(root.capture.backgroundOpacity * 100) : 30
+            enabled: root.capture && !root.capture.busy
+            onReleased: function(value) { root.capture.run("opacity", value / 100) }
+          }
+
+          Text {
+            id: opacityLabel
+            text: Math.round(opacitySlider.liveValue) + "%"
+            color: Color.popups.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.caption
+            anchors.verticalCenter: parent.verticalCenter
+          }
+        }
+
+        ColorDropdown {
+          objectName: "colorPicker"
+          width: parent.width
+          value: root.editingColor ? "custom" : (root.capture ? root.capture.textColor : "#ffffff")
+          customColor: root.capture ? root.capture.textColor : "#ffffff"
+          presets: [
+            {label: "White", value: "#ffffff"},
+            {label: "Light teal", value: "#94e2d5"},
+            {label: "Red", value: "#f38ba8"},
+            {label: "Yellow", value: "#f9e2af"},
+            {label: "Purple", value: "#cba6f7"}
+          ]
           enabled: root.capture && !root.capture.busy
-          onReleased: function(value) { root.capture.run("opacity", value / 100) }
+          onChanged: function(value) {
+            root.editingColor = value === "custom"
+            if (root.editingColor) {
+              customColorField.text = root.capture.textColor
+              Qt.callLater(function() {
+                customColorField.selectAll()
+                customColorField.forceActiveFocus()
+              })
+            } else root.capture.run("color", value)
+          }
         }
 
-        Text {
-          id: opacityLabel
-          text: Math.round(opacitySlider.liveValue) + "%"
-          color: Color.popups.text
-          font.family: Style.font.family
-          font.pixelSize: Style.font.caption
-          anchors.verticalCenter: parent.verticalCenter
+        Row {
+          width: parent.width
+          spacing: Style.space(8)
+          visible: root.editingColor
+          TextField {
+            id: customColorField
+            width: parent.width - applyColor.width - parent.spacing
+            placeholderText: "#ffffff"
+            enabled: root.capture && !root.capture.busy
+            foreground: Color.popups.text
+            font.family: Style.font.family
+            validator: RegularExpressionValidator { regularExpression: /^#[0-9a-fA-F]{6}$/ }
+            onAccepted: if (acceptableInput) root.capture.run("color", text)
+          }
+          Button {
+            id: applyColor
+            text: "Apply"
+            bordered: true
+            fontSize: Style.font.bodySmall
+            focusable: true
+            enabled: customColorField.acceptableInput && root.capture && !root.capture.busy
+            onClicked: root.capture.run("color", customColorField.text)
+          }
         }
-      }
 
-      ColorDropdown {
-        objectName: "colorPicker"
-        width: parent.width
-        value: root.editingColor ? "custom" : (root.capture ? root.capture.textColor : "#ffffff")
-        customColor: root.capture ? root.capture.textColor : "#ffffff"
-        presets: [
-          {label: "White", value: "#ffffff"},
-          {label: "Light teal", value: "#94e2d5"},
-          {label: "Red", value: "#f38ba8"},
-          {label: "Yellow", value: "#f9e2af"},
-          {label: "Purple", value: "#cba6f7"}
-        ]
-        enabled: root.capture && !root.capture.busy
-        onChanged: function(value) {
-          root.editingColor = value === "custom"
-          if (root.editingColor) {
-            customColorField.text = root.capture.textColor
-            Qt.callLater(function() {
-              customColorField.selectAll()
-              customColorField.forceActiveFocus()
-            })
-          } else root.capture.run("color", value)
-        }
-      }
-
-      Row {
-        width: parent.width
-        spacing: Style.space(8)
-        visible: root.editingColor
-        TextField {
-          id: customColorField
-          width: parent.width - applyColor.width - parent.spacing
-          placeholderText: "#ffffff"
-          enabled: root.capture && !root.capture.busy
-          foreground: Color.popups.text
-          font.family: Style.font.family
-          validator: RegularExpressionValidator { regularExpression: /^#[0-9a-fA-F]{6}$/ }
-          onAccepted: if (acceptableInput) root.capture.run("color", text)
-        }
-        Button {
-          id: applyColor
-          text: "Apply"
-          bordered: true
-          fontSize: Style.font.bodySmall
-          focusable: true
-          enabled: customColorField.acceptableInput && root.capture && !root.capture.busy
-          onClicked: root.capture.run("color", customColorField.text)
-        }
       }
 
       Text {

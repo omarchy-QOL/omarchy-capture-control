@@ -11,6 +11,17 @@ The plugin delegates input handling and permissions to Show Me The Key.
 One shared status service checks recording and key capture once per second
 across all monitors; it does not read keys.
 
+## First-run setup
+
+`setup.py` checks installed packages through Pacman. The panel offers only
+missing packages; the installer runs `omarchy pkg add` in Omarchy's terminal.
+Build tools are required only while the private renderer is missing. A file
+lock prevents the panel and installer from building simultaneously.
+
+`overlay.lua` registers a named runtime window rule. It is applied before
+starting the renderer and reapplied after a compositor configuration reload.
+No installation or removal hooks modify the user's Hyprland configuration.
+
 ## Renderer patch
 
 Upstream draws text with a hardcoded white Cairo source. The build script pins
