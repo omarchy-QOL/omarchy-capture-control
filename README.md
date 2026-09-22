@@ -35,7 +35,8 @@ your system package stays unchanged.
   The panel shows your current shortcut.
 
 Recording and key display work independently. Keys stay off until you turn
-them on, and the bar icon is always there.
+them on, and the bar icon is always there. New installations use white text
+and **All bindings**.
 
 Double-tap **Alt** to pause or resume the key display. Double-tap **Ctrl** to
 make the overlay draggable, then again to let clicks pass through it.
