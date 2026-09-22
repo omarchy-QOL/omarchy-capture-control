@@ -33,7 +33,6 @@ o.bind("SUPER + F8", "Toggle key capture", "omarchy shell keycapture toggle")
 ```
 
 Keep the description when changing the key so the panel can find your shortcut.
-Replace the separate start/stop bindings if upgrading from version 0.1.0.
 
 ## Bar placement
 
