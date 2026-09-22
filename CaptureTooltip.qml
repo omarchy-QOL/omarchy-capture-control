@@ -71,7 +71,7 @@ PopupWindow {
     Row {
       id: content
       anchors.centerIn: parent
-      spacing: Style.space(16)
+      spacing: Style.space(24)
 
       Text {
         id: label
