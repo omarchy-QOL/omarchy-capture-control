@@ -1,8 +1,8 @@
 # Capture Control
 
 Screen recording and visible key presses from one Omarchy bar icon, powered by
-[Show Me The Key][showmethekey], an established key visualizer built for
-Wayland. Use Omarchy's recorder and turn the key display on when needed.
+[Show Me The Key][showmethekey] one of the most popular key visualizers built 
+for Wayland. Use Omarchy's recorder and turn the key display on when needed.
 
 ![Capture Control's key display settings in the Omarchy bar](preview.png)
 
