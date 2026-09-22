@@ -85,11 +85,14 @@ Panel {
         }
       }
 
-      Column {
+      Item {
         width: parent.width
-        spacing: Style.space(4)
+        implicitHeight: heading.implicitHeight + Style.space(4) + subtitle.implicitHeight
 
         Text {
+          id: heading
+          anchors.left: parent.left
+          width: captureState.x - Style.space(10)
           text: "Key capture settings"
           color: Color.popups.text
           font.family: Style.font.family
@@ -98,27 +101,25 @@ Panel {
         }
 
         Text {
-          width: parent.width
-          text: "Show pressed keys in screen recordings"
+          id: subtitle
+          anchors.left: parent.left
+          anchors.top: heading.bottom
+          anchors.topMargin: Style.space(4)
+          width: bindingsLabel.x - Style.space(10)
+          text: "Show pressed keys in recordings"
           color: Color.popups.text
           font.family: Style.font.family
           font.pixelSize: Style.font.caption
           wrapMode: Text.WordWrap
         }
-      }
-
-      Item {
-        width: parent.width
-        implicitHeight: Math.max(captureToggle.implicitHeight, bindingsOnlyToggle.implicitHeight)
-
         Text {
           id: captureState
-          anchors.left: parent.left
-          anchors.verticalCenter: parent.verticalCenter
-          width: gear.width
-          horizontalAlignment: Text.AlignHCenter
+          anchors.right: captureToggle.left
+          anchors.rightMargin: Style.space(6)
+          anchors.verticalCenter: heading.verticalCenter
           text: captureToggle.checked ? "ON" : "OFF"
-          font: shortcuts.font
+          font.family: Style.font.family
+          font.pixelSize: Style.font.caption
           color: captureToggle.checked
             ? root.systemColors["palette.green"] || root.systemColors["palette.color2"] || Color.accent
             : root.systemColors["palette.red"] || root.systemColors["palette.color1"] || Color.urgent
@@ -127,11 +128,10 @@ Panel {
         ToggleSwitch {
           id: captureToggle
           objectName: "captureToggle"
-          anchors.left: captureState.right
-          anchors.leftMargin: Style.space(10)
-          anchors.verticalCenter: parent.verticalCenter
-          trackHeight: Math.round(shortcuts.font.pixelSize * 1.2)
-          cursorPad: Style.space(3)
+          anchors.right: parent.right
+          anchors.verticalCenter: heading.verticalCenter
+          trackHeight: Style.space(11)
+          cursorPad: Style.space(2)
           activeFocusOnTab: true
           checked: root.capture && root.capture.capturing
           busy: !root.capture || root.capture.busy
@@ -150,20 +150,20 @@ Panel {
 
         Text {
           id: bindingsLabel
-          anchors.left: captureToggle.right
-          anchors.leftMargin: Style.space(16)
-          anchors.verticalCenter: parent.verticalCenter
+          anchors.right: bindingsOnlyToggle.left
+          anchors.rightMargin: Style.space(6)
+          anchors.verticalCenter: subtitle.verticalCenter
           text: bindingsOnlyToggle.checked ? "Only Omarchy" : "All bindings"
           color: Color.popups.text
-          font: shortcuts.font
+          font.family: Style.font.family
+          font.pixelSize: Style.font.caption
         }
 
         ToggleSwitch {
           id: bindingsOnlyToggle
           objectName: "bindingsOnlyToggle"
-          anchors.left: bindingsLabel.right
-          anchors.leftMargin: Style.space(6)
-          anchors.verticalCenter: parent.verticalCenter
+          anchors.right: parent.right
+          anchors.verticalCenter: subtitle.verticalCenter
           trackHeight: captureToggle.trackHeight
           cursorPad: captureToggle.cursorPad
           activeFocusOnTab: true
