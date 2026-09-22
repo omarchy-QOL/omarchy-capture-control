@@ -53,7 +53,7 @@ indicators. On hosts without Voxtype, place this widget before `omarchy.clock`.
 The capture application uses GLib's plain-text settings backend, isolated in
 `~/.config/showmethekey/`. The gear opens
 `glib-2.0/settings/keyfile` there and the current Hyprland `bindings.lua`.
-Existing dconf settings seed this file on first use. Its
+The plugin creates this file with its defaults on first use. Its
 `[one/alynx/showmethekey]` section contains native application settings;
 `[capture-control]` contains `background-opacity` (0 to 1) and `text-color`.
 Do not edit the generated `gtk-4.0/gtk.css` file.
