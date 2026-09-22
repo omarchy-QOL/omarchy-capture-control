@@ -149,9 +149,7 @@ Panel {
           anchors.leftMargin: Style.space(16)
           anchors.verticalCenter: parent.verticalCenter
           text: bindingsOnlyToggle.checked ? "Only Omarchy" : "All bindings"
-          color: bindingsOnlyToggle.checked
-            ? root.systemColors["palette.green"] || root.systemColors["palette.color2"] || Color.accent
-            : root.systemColors["palette.red"] || root.systemColors["palette.color1"] || Color.urgent
+          color: Color.popups.text
           font: shortcuts.font
         }
 
@@ -189,7 +187,7 @@ Panel {
 
         Button {
           id: gear
-          anchors.left: parent.left
+          anchors.right: parent.right
           anchors.verticalCenter: parent.verticalCenter
           iconText: "󰒓"
           iconSize: Style.font.icon * 1.5
@@ -203,11 +201,11 @@ Panel {
 
         Text {
           id: shortcuts
-          anchors.left: gear.right
-          anchors.leftMargin: Style.space(10)
-          anchors.right: parent.right
+          anchors.left: parent.left
+          anchors.right: gear.left
+          anchors.rightMargin: Style.space(10)
           anchors.verticalCenter: parent.verticalCenter
-          text: root.capture ? "Start/Stop  " + root.capture.toggleShortcut : ""
+          text: root.capture ? "Start / Stop:  " + root.capture.toggleShortcut : ""
           color: Color.popups.text
           font.family: Style.font.family
           font.pixelSize: Style.font.body
