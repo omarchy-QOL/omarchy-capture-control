@@ -18,6 +18,8 @@ the 1.21.0 source archive and verifies its checksum, then replaces that line
 with three lines reading the GTK text colour. A small SIGTERM handler also
 uses the application's normal quit path, allowing its privileged input
 backend to exit before the service stops. Input handling is unchanged.
+Each build extracts the verified source and checks every patch before compiling.
+The binary is replaced atomically, so rebuilding does not interrupt capture.
 The binary lives in `~/.local/share/capture-control/`; build files stay in
 `~/.cache/capture-control/`. No system package files are replaced.
 
