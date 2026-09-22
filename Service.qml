@@ -67,8 +67,6 @@ Item {
 
   IpcHandler {
     target: "keycapture"
-    function start(): void { root.run("start") }
-    function stop(): void { root.run("stop") }
     function toggle(): void { root.run(root.capturing ? "stop" : "start") }
   }
 
