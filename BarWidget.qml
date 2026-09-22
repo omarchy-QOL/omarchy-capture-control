@@ -226,7 +226,7 @@ Panel {
         Text {
           id: opacityTitle
           width: Math.max(implicitWidth, Style.space(36))
-          text: "Background"
+          text: "Overlay transparency"
           color: Color.popups.text
           font.family: Style.font.family
           font.pixelSize: Style.font.body
