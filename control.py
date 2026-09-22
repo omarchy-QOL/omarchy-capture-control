@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """Keep the capture process and its editable settings together."""
 
+import argparse
 import configparser
 import json
 import os
@@ -25,7 +26,10 @@ def running():
 
 def settings():
     config = configparser.ConfigParser(interpolation=None)
-    config.read(SETTINGS)
+    if config.read(SETTINGS):
+        for section in ("one/alynx/showmethekey", "capture-control"):
+            if section not in config:
+                raise ValueError(f"Missing [{section}] in {SETTINGS}")
     return config
 
 
@@ -33,14 +37,11 @@ def initialize():
     if SETTINGS.exists():
         return
     config = configparser.ConfigParser(interpolation=None)
-    config.read_string("[one/alynx/showmethekey]\n" + subprocess.check_output(
-        ["dconf", "dump", "/one/alynx/showmethekey/"], text=True,
-    ).removeprefix("[/]\n"))
-    config["one/alynx/showmethekey"].update({
+    config["one/alynx/showmethekey"] = {
         "first-time": "false", "width": "900.0", "height": "100.0",
         "timeout": "1500.0", "alignment": "'center'",
         "show-keyboard": "true", "show-mouse": "true", "hide-visible": "false",
-    })
+    }
     config["capture-control"] = {"background-opacity": "0.3", "text-color": "#ffffff"}
     save(config)
 
@@ -68,8 +69,9 @@ def text_color(config):
 
 
 def only_omarchy_bindings(config):
-    return (config.getboolean("one/alynx/showmethekey", "hide-visible", fallback=False)
-            and config.get("one/alynx/showmethekey", "mode", fallback="'composed'") != "'raw'")
+    hidden = config.getboolean("one/alynx/showmethekey", "hide-visible", fallback=False)
+    mode = config.get("one/alynx/showmethekey", "mode", fallback="'composed'")
+    return hidden and mode != "'raw'"
 
 
 def start():
@@ -96,9 +98,46 @@ def stop():
         subprocess.run(["systemctl", "--user", "stop", UNIT], check=True)
 
 
-def main():
-    action = sys.argv[1]
-    if action == "status":
+def set_native(key, value):
+    env = {**os.environ, "GSETTINGS_BACKEND": "keyfile", "XDG_CONFIG_HOME": str(APP_HOME)}
+    subprocess.run(["gsettings", "set", "one.alynx.showmethekey", key, value],
+                   env=env, check=True)
+
+
+def set_bindings_only(value):
+    if value not in ("true", "false"):
+        raise ValueError("Bindings filter must be true or false")
+    initialize()
+    config = settings()
+    if value == "true" and config.get("one/alynx/showmethekey", "mode", fallback="'composed'") == "'raw'":
+        set_native("mode", "composed")
+    set_native("hide-visible", value)
+
+
+def set_appearance(action, value):
+    initialize()
+    config = settings()
+    key = "background-opacity" if action == "opacity" else "text-color"
+    config["capture-control"][key] = value
+    opacity(config)
+    text_color(config)
+    save(config)
+    if running():
+        stop()
+        start()
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("status", "start", "stop", "bindings-only", "opacity", "color", "edit"))
+    parser.add_argument("value", nargs="?")
+    args = parser.parse_args(argv)
+    needs_value = args.action in ("bindings-only", "opacity", "color")
+    if needs_value != (args.value is not None):
+        parser.error(f"{args.action} requires one value" if needs_value
+                     else f"{args.action} takes no value")
+
+    if args.action == "status":
         recording = subprocess.run(
             ["pgrep", "--quiet", "-f", "^gpu-screen-recorder"],
         ).returncode == 0
@@ -106,41 +145,20 @@ def main():
         print(json.dumps({"recording": recording, "running": running(),
                           "opacity": opacity(config), "textColor": text_color(config),
                           "onlyOmarchyBindings": only_omarchy_bindings(config)}))
-    elif action == "start":
+    elif args.action == "start":
         start()
-    elif action == "stop":
+    elif args.action == "stop":
         stop()
-    elif action == "bindings-only":
-        value = sys.argv[2]
-        if value not in ("true", "false"):
-            raise ValueError("Bindings filter must be true or false")
-        initialize()
-        env = {**os.environ, "GSETTINGS_BACKEND": "keyfile", "XDG_CONFIG_HOME": str(APP_HOME)}
-        command = ["gsettings", "set", "one.alynx.showmethekey"]
-        if value == "true" and settings().get("one/alynx/showmethekey", "mode", fallback="'composed'") == "'raw'":
-            subprocess.run(command + ["mode", "composed"], env=env, check=True)
-        subprocess.run(command + ["hide-visible", value], env=env, check=True)
-    elif action in ("opacity", "color"):
-        initialize()
-        config = settings()
-        if not config.has_section("capture-control"):
-            config.add_section("capture-control")
-        key = "background-opacity" if action == "opacity" else "text-color"
-        config["capture-control"][key] = sys.argv[2]
-        opacity(config)
-        text_color(config)
-        save(config)
-        if running():
-            stop()
-            start()
-    elif action == "edit":
+    elif args.action == "bindings-only":
+        set_bindings_only(args.value)
+    elif args.action in ("opacity", "color"):
+        set_appearance(args.action, args.value)
+    elif args.action == "edit":
         initialize()
         os.execvp("omarchy-launch-terminal", [
             "omarchy-launch-terminal", "-e", "nvim", "-O", str(SETTINGS),
             str(CONFIG_HOME / "hypr/bindings.lua"),
         ])
-    else:
-        raise ValueError("Unknown capture action")
 
 
 if __name__ == "__main__":
