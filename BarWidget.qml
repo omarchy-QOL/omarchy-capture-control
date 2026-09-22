@@ -93,7 +93,7 @@ Panel {
 
         Text {
           width: parent.width
-          text: "Show pressed keys in screen recordings."
+          text: "Show pressed keys in screen recordings"
           color: Color.popups.text
           font.family: Style.font.family
           font.pixelSize: Style.font.caption
