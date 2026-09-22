@@ -133,7 +133,6 @@ Panel {
           trackHeight: Math.round(shortcuts.font.pixelSize * 1.2)
           cursorPad: Style.space(3)
           activeFocusOnTab: true
-          hasCursor: activeFocus
           checked: root.capture && root.capture.capturing
           busy: !root.capture || root.capture.busy
           Accessible.name: "Key capture"
