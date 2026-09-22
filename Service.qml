@@ -11,6 +11,7 @@ Item {
   property bool capturing: false
   property real backgroundOpacity: 0.3
   property string textColor: "#ffffff"
+  property bool onlyOmarchyBindings: false
   property string error: ""
   property string toggleShortcut: "Unbound"
   property var pendingAction: null
@@ -29,6 +30,7 @@ Item {
     error = ""
     if (command === "opacity") backgroundOpacity = Number(value)
     if (command === "color") textColor = String(value)
+    if (command === "bindings-only") onlyOmarchyBindings = value === true
     if (command === "start" || command === "stop") capturing = command === "start"
     action.command = ["python3", helper, command]
     if (value !== undefined) action.command = action.command.concat([String(value)])
@@ -93,6 +95,7 @@ Item {
           root.capturing = state.running
           root.backgroundOpacity = state.opacity
           root.textColor = state.textColor
+          root.onlyOmarchyBindings = state.onlyOmarchyBindings
         } catch (error) { root.error = "Could not read capture state" }
       }
     }

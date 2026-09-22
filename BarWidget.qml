@@ -170,6 +170,28 @@ Panel {
         }
       }
 
+      Toggle {
+        id: bindingsOnlyToggle
+        objectName: "bindingsOnlyToggle"
+        width: parent.width
+        implicitHeight: Style.space(36)
+        label: "Only Omarchy bindings"
+        titleSize: Style.font.body
+        foreground: Color.popups.text
+        checked: root.capture && root.capture.onlyOmarchyBindings
+        enabled: root.capture && !root.capture.busy
+        Accessible.name: label
+        onClicked: root.capture.run("bindings-only", !checked)
+        onHovered: function(hovered) { bindingsTooltip.hovered = hovered }
+
+        CaptureTooltip {
+          id: bindingsTooltip
+          anchorItem: bindingsOnlyToggle
+          bar: root.bar
+          text: "Hiding ordinary typing"
+        }
+      }
+
       Row {
         width: parent.width
         spacing: Style.space(10)
