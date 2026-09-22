@@ -109,6 +109,8 @@ Panel {
           id: captureState
           anchors.left: parent.left
           anchors.verticalCenter: parent.verticalCenter
+          width: gear.width
+          horizontalAlignment: Text.AlignHCenter
           text: captureToggle.checked ? "ON" : "OFF"
           font: shortcuts.font
           color: captureToggle.checked
@@ -120,7 +122,7 @@ Panel {
           id: captureToggle
           objectName: "captureToggle"
           anchors.left: captureState.right
-          anchors.leftMargin: Style.space(6)
+          anchors.leftMargin: Style.space(10)
           anchors.verticalCenter: parent.verticalCenter
           trackHeight: Math.round(shortcuts.font.pixelSize * 1.2)
           cursorPad: Style.space(3)
@@ -144,23 +146,20 @@ Panel {
         Text {
           id: bindingsLabel
           anchors.left: captureToggle.right
-          anchors.leftMargin: Style.space(10)
-          anchors.right: bindingsOnlyToggle.left
-          anchors.rightMargin: Style.space(6)
+          anchors.leftMargin: Style.space(16)
           anchors.verticalCenter: parent.verticalCenter
           text: bindingsOnlyToggle.checked ? "Only Omarchy" : "All bindings"
           color: bindingsOnlyToggle.checked
             ? root.systemColors["palette.green"] || root.systemColors["palette.color2"] || Color.accent
             : root.systemColors["palette.red"] || root.systemColors["palette.color1"] || Color.urgent
           font: shortcuts.font
-          horizontalAlignment: Text.AlignRight
-          elide: Text.ElideRight
         }
 
         ToggleSwitch {
           id: bindingsOnlyToggle
           objectName: "bindingsOnlyToggle"
-          anchors.right: parent.right
+          anchors.left: bindingsLabel.right
+          anchors.leftMargin: Style.space(6)
           anchors.verticalCenter: parent.verticalCenter
           trackHeight: captureToggle.trackHeight
           cursorPad: captureToggle.cursorPad
