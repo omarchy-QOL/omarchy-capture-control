@@ -18,11 +18,31 @@ Item {
   readonly property bool busy: action.running
   readonly property string helper: decodeURIComponent(Qt.resolvedUrl("control.py").toString().replace(/^file:\/\//, ""))
 
+  property bool setupChecked: false
+  property bool setupReady: false
+  property var missingPackages: []
+  readonly property bool settingUp: setupStatus.running || rendererBuild.running
+  readonly property string setupHelper: decodeURIComponent(Qt.resolvedUrl("setup.py").toString().replace(/^file:\/\//, ""))
+
+  function checkSetup() {
+    if (settingUp) return
+    error = ""
+    setupStatus.running = true
+  }
+
+  function installDependencies() {
+    Quickshell.execDetached(["omarchy", "launch", "terminal", "-e", "python3", setupHelper, "install"])
+  }
+
   function refresh() {
     if (!status.running && !action.running) status.running = true
   }
 
   function run(command, value) {
+    if (command !== "stop" && !setupReady) {
+      error = "Right-click Capture Control to finish setup"
+      return
+    }
     if (action.running) {
       pendingAction = [command, value]
       return
@@ -56,12 +76,16 @@ Item {
   Component.onCompleted: {
     refresh()
     refreshShortcuts()
+    checkSetup()
   }
 
   Connections {
     target: Hyprland
     function onRawEvent(event) {
-      if (event.name === "configreloaded") root.refreshShortcuts()
+      if (event.name === "configreloaded") {
+        root.refreshShortcuts()
+        if (root.capturing) Quickshell.execDetached(["python3", root.helper, "place"])
+      }
     }
   }
 
@@ -75,6 +99,38 @@ Item {
     running: true
     repeat: true
     onTriggered: root.refresh()
+  }
+
+  Process {
+    id: setupStatus
+    command: ["python3", root.setupHelper, "status"]
+    stdout: StdioCollector { id: setupOutput }
+    stderr: StdioCollector { id: setupError }
+    onExited: function(code) {
+      root.setupChecked = true
+      if (code !== 0) {
+        root.setupReady = false
+        root.error = setupError.text.trim() || "Could not check dependencies"
+        return
+      }
+      try {
+        var state = JSON.parse(setupOutput.text)
+        root.missingPackages = state.missing
+        root.setupReady = state.missing.length === 0 && state.renderer
+        if (!root.setupReady && state.missing.length === 0) rendererBuild.running = true
+      } catch (error) { root.error = "Could not check dependencies" }
+    }
+  }
+
+  Process {
+    id: rendererBuild
+    command: ["python3", root.setupHelper, "build"]
+    stdout: StdioCollector {}
+    stderr: StdioCollector { id: buildError }
+    onExited: function(code) {
+      root.setupReady = code === 0
+      if (code !== 0) root.error = "Renderer setup failed. " + buildError.text.trim().split("\n").slice(-1)[0]
+    }
   }
 
   Process {

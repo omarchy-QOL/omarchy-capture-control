@@ -110,7 +110,7 @@ class SettingsTest(unittest.TestCase):
 
     def test_start_requires_renderer_and_writes_isolated_style(self):
         with patch.object(control, "running", return_value=False):
-            with self.assertRaisesRegex(ValueError, "build-renderer.py"):
+            with self.assertRaisesRegex(ValueError, "finish setup"):
                 control.start()
             control.RENDERER.touch()
             with patch.object(control.subprocess, "run") as run:

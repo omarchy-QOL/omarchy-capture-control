@@ -74,11 +74,17 @@ def only_omarchy_bindings(config):
     return hidden and mode != "'raw'"
 
 
+def place_overlay():
+    rule = Path(__file__).with_name("overlay.lua").read_text()
+    subprocess.run(["hyprctl", "eval", rule], check=True, stdout=subprocess.DEVNULL)
+
+
 def start():
     if running():
         return
     if not RENDERER.is_file():
-        raise ValueError("Run build-renderer.py once before starting capture")
+        raise ValueError("Right-click Capture Control to finish setup")
+    place_overlay()
     initialize()
     css = APP_HOME / "gtk-4.0/gtk.css"
     css.parent.mkdir(parents=True, exist_ok=True)
@@ -129,7 +135,7 @@ def set_appearance(action, value):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("status", "start", "stop", "bindings-only", "opacity", "color", "edit"))
+    parser.add_argument("action", choices=("status", "start", "stop", "place", "bindings-only", "opacity", "color", "edit"))
     parser.add_argument("value", nargs="?")
     args = parser.parse_args(argv)
     needs_value = args.action in ("bindings-only", "opacity", "color")
@@ -147,6 +153,8 @@ def main(argv=None):
                           "onlyOmarchyBindings": only_omarchy_bindings(config)}))
     elif args.action == "start":
         start()
+    elif args.action == "place":
+        place_overlay()
     elif args.action == "stop":
         stop()
     elif args.action == "bindings-only":
