@@ -15,7 +15,6 @@ Item {
   property color popupBorder: Color.popups.border
   property color accent: Color.accent
   property string fontFamily: Style.font.family
-  readonly property bool popupOpen: popup.opened
   readonly property var popupBorderSpec: Border.localOrSurfaceSpec(
     "popups", "border", popupBorder, Color.popups.border,
     Style.normalBorderWidth)
@@ -29,10 +28,6 @@ Item {
         return String(presets[index].label)
     }
     return "Custom"
-  }
-
-  function currentColor() {
-    return value === "custom" ? customColor : value
   }
 
   function select(nextValue) {
@@ -69,7 +64,7 @@ Item {
       anchors.right: chevron.left
       anchors.rightMargin: Style.space(8)
       anchors.verticalCenter: parent.verticalCenter
-      color: root.currentColor()
+      color: root.value === "custom" ? root.customColor : root.value
       border.width: 1
       border.color: Qt.rgba(
         root.foreground.r,
@@ -118,31 +113,12 @@ Item {
     contentItem: Column {
       spacing: Style.spacing.labelGap
 
-      Button {
+      ColorOption {
         id: customButton
-        width: parent.width
         text: "Custom"
-        foreground: root.foreground
-        accent: root.accent
-        fontFamily: root.fontFamily
-        fontSize: Style.font.body
-        leftAlign: true
-        rightPadding: horizontalPadding + Style.space(20)
-        selected: root.value === "custom"
-        focusable: true
-        activeFocusOnTab: true
+        optionValue: "custom"
         Keys.onDownPressed: root.focusOption(0)
         Keys.onUpPressed: root.focusOption(root.presets.length - 1)
-        Keys.onReturnPressed: root.select("custom")
-        Keys.onEnterPressed: root.select("custom")
-        Keys.onSpacePressed: root.select("custom")
-        onClicked: root.select("custom")
-
-        ColorSwatch {
-          colorValue: root.customColor
-          foreground: root.foreground
-          horizontalPadding: parent.horizontalPadding
-        }
       }
 
       PanelSeparator { foreground: root.foreground }
@@ -151,34 +127,39 @@ Item {
         id: presetButtons
         model: root.presets
 
-        Button {
+        ColorOption {
           required property var modelData
           required property int index
-          width: parent.width
           text: String(modelData.label)
-          foreground: root.foreground
-          accent: root.accent
-          fontFamily: root.fontFamily
-          fontSize: Style.font.body
-          leftAlign: true
-          rightPadding: horizontalPadding + Style.space(20)
-          selected: root.value === String(modelData.value)
-          focusable: true
-          activeFocusOnTab: true
+          optionValue: String(modelData.value)
           Keys.onDownPressed: root.focusOption(index + 1)
           Keys.onUpPressed: root.focusOption(index - 1)
-          Keys.onReturnPressed: root.select(String(modelData.value))
-          Keys.onEnterPressed: root.select(String(modelData.value))
-          Keys.onSpacePressed: root.select(String(modelData.value))
-          onClicked: root.select(String(modelData.value))
-
-          ColorSwatch {
-            colorValue: String(parent.modelData.value)
-            foreground: root.foreground
-            horizontalPadding: parent.horizontalPadding
-          }
         }
       }
+    }
+  }
+
+  component ColorOption: Button {
+    id: option
+    required property string optionValue
+    width: parent.width
+    foreground: root.foreground
+    accent: root.accent
+    fontFamily: root.fontFamily
+    fontSize: Style.font.body
+    leftAlign: true
+    rightPadding: horizontalPadding + Style.space(20)
+    selected: root.value === optionValue
+    focusable: true
+    Keys.onReturnPressed: root.select(optionValue)
+    Keys.onEnterPressed: root.select(optionValue)
+    Keys.onSpacePressed: root.select(optionValue)
+    onClicked: root.select(optionValue)
+
+    ColorSwatch {
+      colorValue: option.optionValue === "custom" ? root.customColor : option.optionValue
+      foreground: root.foreground
+      horizontalPadding: option.horizontalPadding
     }
   }
 
