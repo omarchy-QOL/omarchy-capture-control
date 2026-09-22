@@ -39,7 +39,7 @@ def initialize():
     config["one/alynx/showmethekey"].update({
         "first-time": "false", "width": "900.0", "height": "100.0",
         "timeout": "1500.0", "alignment": "'center'",
-        "show-keyboard": "true", "show-mouse": "true",
+        "show-keyboard": "true", "show-mouse": "true", "hide-visible": "false",
     })
     config["capture-control"] = {"background-opacity": "0.3", "text-color": "#ffffff"}
     save(config)

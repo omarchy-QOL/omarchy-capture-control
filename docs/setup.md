@@ -64,6 +64,7 @@ At 100%, the background is solid black. Restarting returns the overlay to its
 default position. Other native application settings use GLib's normal live
 updates; hand-edited appearance values apply on the next capture start.
 
+New installations default to **All bindings**, with the Omarchy filter off.
 **Only Omarchy** controls Show Me The Key's native `hide-visible`
 setting. It applies live without restarting capture and is saved while capture
 is off. It hides keyboard input without Super, Ctrl, or Alt; it does not check
